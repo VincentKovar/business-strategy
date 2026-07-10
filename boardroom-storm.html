@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boardroom STORM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8D4A0;
+    --gold-dim: #8A6E2F;
+    --charcoal: #1A1A1A;
+    --charcoal-mid: #2C2C2C;
+    --charcoal-surface: #242424;
+    --ivory: #F5F0E8;
+    --ivory-dim: #C8C0AE;
+    --ivory-faint: #2A2520;
+    --border: rgba(201,168,76,0.25);
+    --border-strong: rgba(201,168,76,0.5);
+    --danger: #C0392B;
+    --danger-bg: rgba(192,57,43,0.12);
+  }
+
+  body {
+    background: var(--charcoal);
+    color: var(--ivory);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Layout */
+  .shell { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--charcoal-mid);
+    border-right: 0.5px solid var(--border);
+    padding: 2rem 0;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-logo {
+    padding: 0 1.5rem 1.5rem;
+    border-bottom: 0.5px solid var(--border);
+    margin-bottom: 1.5rem;
+  }
+  .sidebar-logo h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+  }
+  .sidebar-logo p {
+    font-size: 11px;
+    color: var(--ivory-dim);
+    margin-top: 3px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .stage-list { flex: 1; padding: 0 0.75rem; }
+  .stage-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-bottom: 2px;
+    border: 0.5px solid transparent;
+  }
+  .stage-item:hover { background: var(--ivory-faint); }
+  .stage-item.active {
+    background: var(--ivory-faint);
+    border-color: var(--border);
+  }
+  .stage-num {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 0.5px solid var(--border-strong);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 500;
+    color: var(--ivory-dim);
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: all 0.15s;
+  }
+  .stage-item.active .stage-num,
+  .stage-item.done .stage-num {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--charcoal);
+  }
+  .stage-item.done .stage-num::after { content: '✓'; font-size: 9px; }
+  .stage-item.done:not(.active) .stage-num { content: ''; }
+  .stage-label { font-size: 13px; color: var(--ivory-dim); line-height: 1.4; }
+  .stage-item.active .stage-label { color: var(--ivory); font-weight: 500; }
+
+  .sidebar-credit {
+    padding: 1rem 1.5rem 0;
+    border-top: 0.5px solid var(--border);
+    font-size: 10px;
+    color: var(--ivory-dim);
+    opacity: 0.6;
+    line-height: 1.5;
+  }
+
+  /* Main content */
+  .main {
+    margin-left: 220px;
+    flex: 1;
+    padding: 2.5rem 3rem;
+    max-width: 860px;
+  }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .panel-eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin-bottom: 6px;
+  }
+  .panel-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--ivory);
+    margin-bottom: 10px;
+    line-height: 1.25;
+  }
+  .panel-desc {
+    font-size: 14px;
+    color: var(--ivory-dim);
+    line-height: 1.7;
+    max-width: 580px;
+    margin-bottom: 2rem;
+    border-left: 2px solid var(--border-strong);
+    padding-left: 14px;
+  }
+
+  /* Inputs */
+  .field { margin-bottom: 1.25rem; }
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  input[type="text"], textarea, select {
+    width: 100%;
+    background: var(--charcoal-surface);
+    border: 0.5px solid var(--border-strong);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: var(--ivory);
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.15s;
+    outline: none;
+  }
+  input[type="text"]:focus, textarea:focus {
+    border-color: var(--gold);
+  }
+  textarea { min-height: 80px; resize: vertical; }
+  ::placeholder { color: var(--ivory-dim); opacity: 0.5; }
+
+  /* Prompt block */
+  .prompt-wrap { margin-top: 1.5rem; }
+  .prompt-eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .prompt-box {
+    background: var(--charcoal-surface);
+    border: 0.5px solid var(--border-strong);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 6px 6px 0;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--ivory);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: 'Inter', sans-serif;
+  }
+  .prompt-actions { display: flex; gap: 8px; margin-top: 10px; }
+
+  /* Buttons */
+  .btn {
+    padding: 9px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Inter', sans-serif;
+    border: 0.5px solid var(--border-strong);
+    background: transparent;
+    color: var(--ivory-dim);
+  }
+  .btn:hover { background: var(--ivory-faint); color: var(--ivory); }
+  .btn-gold {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--charcoal);
+    font-weight: 500;
+  }
+  .btn-gold:hover { background: var(--gold-light); border-color: var(--gold-light); }
+  .btn-ghost { border-color: var(--border); }
+  .btn.copied { border-color: var(--gold); color: var(--gold); }
+
+  /* Nav buttons */
+  .nav-btns { display: flex; gap: 10px; margin-top: 2rem; padding-top: 1.5rem; border-top: 0.5px solid var(--border); }
+
+  /* Perspectives grid */
+  .persp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; margin-bottom: 1.5rem; }
+  .persp-card {
+    background: var(--charcoal-surface);
+    border: 0.5px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+  .persp-card strong { display: block; font-size: 12px; color: var(--gold); margin-bottom: 3px; font-weight: 500; }
+  .persp-card span { font-size: 12px; color: var(--ivory-dim); line-height: 1.4; }
+
+  /* Contradiction ledger */
+  .ledger-row { display: flex; gap: 8px; margin-bottom: 8px; }
+  .ledger-row input { flex: 1; }
+  .ledger-list { margin-top: 4px; }
+  .ledger-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--danger-bg);
+    border: 0.5px solid rgba(192,57,43,0.3);
+    border-radius: 6px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    color: var(--ivory);
+    line-height: 1.5;
+  }
+  .ledger-remove { cursor: pointer; color: var(--ivory-dim); font-size: 16px; flex-shrink: 0; line-height: 1; opacity: 0.6; }
+  .ledger-remove:hover { opacity: 1; color: var(--danger); }
+
+  /* Divider */
+  .section-divider { border: none; border-top: 0.5px solid var(--border); margin: 1.75rem 0; }
+
+  /* Progress strip */
+  .progress-strip { display: flex; gap: 4px; margin-bottom: 2rem; }
+  .p-dot { height: 2px; flex: 1; border-radius: 2px; background: var(--border); transition: background 0.3s; }
+  .p-dot.lit { background: var(--gold); }
+
+  /* Info box */
+  .info-box {
+    background: var(--ivory-faint);
+    border: 0.5px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--ivory-dim);
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+  }
+  .info-box strong { color: var(--gold); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- Sidebar -->
+  <nav class="sidebar" aria-label="Workflow stages">
+    <div class="sidebar-logo">
+      <h1>Boardroom STORM</h1>
+      <p>Decision-grade research</p>
+    </div>
+    <div class="stage-list" id="stage-list"></div>
+    <div class="sidebar-credit">
+      Adapted from Stanford OVAL Lab's STORM method. Built for Claude.
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="progress-strip" id="progress-strip"></div>
+
+    <!-- Panel 0: Frame -->
+    <section class="panel active" id="panel-0" aria-labelledby="title-0">
+      <div class="panel-eyebrow">Stage 1 of 6</div>
+      <h2 class="panel-title" id="title-0">Frame your question</h2>
+      <p class="panel-desc">STORM starts before writing — with a decision-grade question. A good question names a decision-maker, a decision point, and a consequence if the call goes wrong. Vague topics produce vague research.</p>
+
+      <div class="field">
+        <label for="topic">Your topic or decision question</label>
+        <input type="text" id="topic" placeholder="e.g. Should we enter the Southeast Asian B2B SaaS market in 2025?">
+      </div>
+      <div class="field">
+        <label for="role">Your role or decision context</label>
+        <input type="text" id="role" placeholder="e.g. Founder evaluating market entry / Investor doing due diligence">
+      </div>
+
+      <button class="btn btn-gold" onclick="generateFraming()">Generate framing prompt</button>
+
+      <div class="prompt-wrap" id="framing-wrap" style="display:none;">
+        <div class="prompt-eyebrow">Prompt — paste into Claude</div>
+        <div class="prompt-box" id="framing-prompt"></div>
+        <div class="prompt-actions">
+          <button class="btn btn-ghost" onclick="copyEl('framing-prompt', this)">Copy prompt</button>
+        </div>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn btn-gold" onclick="goTo(1)">Next: Perspectives →</button>
+      </div>
+    </section>
+
+    <!-- Panel 1: Perspectives -->
+    <section class="panel" id="panel-1" aria-labelledby="title-1">
+      <div class="panel-eyebrow">Stage 2 of 6</div>
+      <h2 class="panel-title" id="title-1">Generate ten perspectives</h2>
+      <p class="panel-desc">STORM's edge comes from forcing ten decision-relevant expert lenses before any writing begins. Each perspective must have real skin in the game — genuine incentive to get this question right or wrong.</p>
+
+      <div class="persp-grid">
+        <div class="persp-card"><strong>Operator insider</strong><span>Someone currently doing this in the market</span></div>
+        <div class="persp-card"><strong>Failed entrant</strong><span>Someone who tried and pulled back</span></div>
+        <div class="persp-card"><strong>Bear analyst</strong><span>The most credible pessimist</span></div>
+        <div class="persp-card"><strong>Bull analyst</strong><span>The most credible optimist</span></div>
+        <div class="persp-card"><strong>Regulator / policy</strong><span>Rules, moats, and friction</span></div>
+        <div class="persp-card"><strong>End customer</strong><span>The buyer's actual experience</span></div>
+        <div class="persp-card"><strong>Capital allocator</strong><span>Where the money actually flows</span></div>
+        <div class="persp-card"><strong>Technical constraint</strong><span>What the tech makes hard or easy</span></div>
+        <div class="persp-card"><strong>Cultural broker</strong><span>What gets lost in translation</span></div>
+        <div class="persp-card"><strong>Unknown unknown hunter</strong><span>What nobody's asking yet</span></div>
+      </div>
+
+      <button class="btn btn-gold" onclick="generatePerspectives()">Generate perspectives prompt</button>
+
+      <div class="prompt-wrap" id="persp-wrap" style="display:none;">
+        <div class="prompt-eyebrow">Prompt — paste into Claude</div>
+        <div class="prompt-box" id="persp-prompt"></div>
+        <div class="prompt-actions">
+          <button class="btn btn-ghost" onclick="copyEl('persp-prompt', this)">Copy prompt</button>
+        </div>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn btn-ghost" onclick="goTo(0)">← Back</button>
+        <button class="btn btn-gold" onclick="goTo(2)">Next: Interviews →</button>
+      </div>
+    </section>
+
+    <!-- Panel 2: Interviews -->
+    <section class="panel" id="panel-2" aria-labelledby="title-2">
+      <div class="panel-eyebrow">Stage 3 of 6</div>
+      <h2 class="panel-title" id="title-2">Run source-grounded interviews</h2>
+      <p class="panel-desc">For each perspective, Claude adopts the expert role and answers with real sources — not generic opinions. Run one perspective at a time, or ask Claude to batch all ten. Every unsourced claim gets flagged explicitly.</p>
+
+      <div class="info-box"><strong>Tip:</strong> Run the highest-stakes or most contrarian perspectives first. The bear and the failed entrant surface problems the bull will rationalize away.</div>
+
+      <div class="field">
+        <label for="perspective">Which perspective are you interviewing?</label>
+        <input type="text" id="perspective" placeholder="e.g. Failed entrant — tried Southeast Asian B2B SaaS and exited">
+      </div>
+
+      <button class="btn btn-gold" onclick="generateInterview()">Generate interview prompt</button>
+
+      <div class="prompt-wrap" id="interview-wrap" style="display:none;">
+        <div class="prompt-eyebrow">Prompt — paste into Claude</div>
+        <div class="prompt-box" id="interview-prompt"></div>
+        <div class="prompt-actions">
+          <button class="btn btn-ghost" onclick="copyEl('interview-prompt', this)">Copy prompt</button>
+        </div>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn btn-ghost" onclick="goTo(1)">← Back</button>
+        <button class="btn btn-gold" onclick="goTo(3)">Next: Contradictions →</button>
+      </div>
+    </section>
+
+    <!-- Panel 3: Contradictions -->
+    <section class="panel" id="panel-3" aria-labelledby="title-3">
+      <div class="panel-eyebrow">Stage 4 of 6</div>
+      <h2 class="panel-title" id="title-3">Build the contradiction ledger</h2>
+      <p class="panel-desc">Track where expert perspectives flatly disagree. Contradictions are your most valuable signals — the places where easy consensus breaks down. Log each one, then ask Claude to resolve or explain it without splitting the difference.</p>
+
+      <div class="ledger-row">
+        <input type="text" id="c-input" placeholder="e.g. Bear: payment infrastructure not ready. Bull: GoPay data shows 3x growth.">
+        <button class="btn btn-gold" onclick="addC()">Add</button>
+      </div>
+      <div class="ledger-list" id="ledger"></div>
+
+      <hr class="section-divider">
+
+      <button class="btn btn-gold" onclick="generateLedger()">Generate resolution prompt</button>
+
+      <div class="prompt-wrap" id="ledger-wrap" style="display:none;">
+        <div class="prompt-eyebrow">Prompt — paste into Claude</div>
+        <div class="prompt-box" id="ledger-prompt"></div>
+        <div class="prompt-actions">
+          <button class="btn btn-ghost" onclick="copyEl('ledger-prompt', this)">Copy prompt</button>
+        </div>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn btn-ghost" onclick="goTo(2)">← Back</button>
+        <button class="btn btn-gold" onclick="goTo(4)">Next: Outline →</button>
+      </div>
+    </section>
+
+    <!-- Panel 4: Outline -->
+    <section class="panel" id="panel-4" aria-labelledby="title-4">
+      <div class="panel-eyebrow">Stage 5 of 6</div>
+      <h2 class="panel-title" id="title-4">Synthesize a source-mapped outline</h2>
+      <p class="panel-desc">STORM's core rule: draft only from a stable outline. Every section must trace back to at least one source from the interview stage. No unsourced claim reaches the draft.</p>
+
+      <div class="info-box"><strong>What makes a good STORM outline:</strong> Organized by decision relevance, not topic category. Contradictions that weren't resolved get their own section. Each entry carries its source and open questions.</div>
+
+      <div class="prompt-eyebrow">Prompt — paste into Claude</div>
+      <div class="prompt-box" id="outline-prompt"></div>
+      <div class="prompt-actions" style="margin-top:10px;">
+        <button class="btn btn-ghost" onclick="copyEl('outline-prompt', this)">Copy prompt</button>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn btn-ghost" onclick="goTo(3)">← Back</button>
+        <button class="btn btn-gold" onclick="goTo(5)">Next: Draft & Audit →</button>
+      </div>
+    </section>
+
+    <!-- Panel 5: Draft & Audit -->
+    <section class="panel" id="panel-5" aria-labelledby="title-5">
+      <div class="panel-eyebrow">Stage 6 of 6</div>
+      <h2 class="panel-title" id="title-5">Draft, then run the moderator audit</h2>
+      <p class="panel-desc">Claude drafts only from the approved outline. Then a Co-STORM moderator pass hunts for unknown unknowns — the gaps most reports never surface. Run both prompts in sequence.</p>
+
+      <div class="prompt-eyebrow">Prompt 1 — Draft from outline</div>
+      <div class="prompt-box" id="draft-prompt"></div>
+      <div class="prompt-actions" style="margin-top:10px; margin-bottom: 1.75rem;">
+        <button class="btn btn-ghost" onclick="copyEl('draft-prompt', this)">Copy prompt</button>
+      </div>
+
+      <hr class="section-divider">
+
+      <div class="prompt-eyebrow">Prompt 2 — Co-STORM moderator audit</div>
+      <div class="prompt-box" id="audit-prompt"></div>
+      <div class="prompt-actions" style="margin-top:10px;">
+        <button class="btn btn-ghost" onclick="copyEl('audit-prompt', this)">Copy prompt</button>
+      </div>
+
+      <div class="nav-btns">
+        <button class="btn btn-ghost" onclick="goTo(4)">← Back</button>
+        <button class="btn btn-gold" onclick="restart()">Start new research ↺</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+const STAGES = [
+  { label: 'Frame the question' },
+  { label: 'Generate perspectives' },
+  { label: 'Run interviews' },
+  { label: 'Contradiction ledger' },
+  { label: 'Synthesize outline' },
+  { label: 'Draft & audit' }
+];
+
+let current = 0;
+let contradictions = [];
+let done = new Set([0]);
+
+function buildNav() {
+  const list = document.getElementById('stage-list');
+  const strip = document.getElementById('progress-strip');
+  list.innerHTML = '';
+  strip.innerHTML = '';
+  STAGES.forEach((s, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'stage-item' + (i === current ? ' active' : '') + (done.has(i) && i !== current ? ' done' : '');
+    btn.setAttribute('role', 'button');
+    btn.setAttribute('tabindex', '0');
+    btn.setAttribute('aria-current', i === current ? 'step' : 'false');
+    btn.innerHTML = `<div class="stage-num">${done.has(i) && i !== current ? '' : i + 1}</div><div class="stage-label">${s.label}</div>`;
+    btn.onclick = () => goTo(i);
+    list.appendChild(btn);
+
+    const dot = document.createElement('div');
+    dot.className = 'p-dot' + (i <= current ? ' lit' : '');
+    strip.appendChild(dot);
+  });
+}
+
+function goTo(n) {
+  document.querySelectorAll('.panel').forEach((p, i) => p.classList.toggle('active', i === n));
+  current = n;
+  done.add(n);
+  buildNav();
+  if (n === 4) populateOutline();
+  if (n === 5) populateDraft();
+  window.scrollTo(0, 0);
+}
+
+function getTopic() { return document.getElementById('topic').value.trim() || '[your topic]'; }
+function getRole() { return document.getElementById('role').value.trim() || '[your role]'; }
+
+function generateFraming() {
+  const t = getTopic(), r = getRole();
+  document.getElementById('framing-prompt').textContent =
+`You are running Boardroom STORM — a decision-grade research workflow adapted from Stanford's STORM method.
+
+My question: "${t}"
+My role: ${r}
+
+Before we begin, do three things:
+1. Restate my question as a crisp decision question with a clear decision-maker, a decision point, and a consequence if the decision goes wrong.
+2. Identify the three biggest assumptions baked into my question that we should stress-test.
+3. Suggest a sharper version of the question if the framing has a blind spot.
+
+Do not answer the question yet. We are setting up the research architecture.`;
+  document.getElementById('framing-wrap').style.display = 'block';
+}
+
+function generatePerspectives() {
+  const t = getTopic();
+  document.getElementById('persp-prompt').textContent =
+`We are running Boardroom STORM on this question: "${t}"
+
+Generate ten decision-relevant expert perspectives. Each perspective should:
+- Have genuine skin in the game (real incentive to get this right or wrong)
+- Ask at least two questions nobody else on the list would think to ask
+- Be named as a specific expert archetype, not a generic label
+
+Format each as:
+PERSPECTIVE [N]: [Archetype name]
+Incentive: [Why they care about this question]
+Key questions they would ask:
+  Q1: ...
+  Q2: ...
+  Q3: ...
+
+Do not answer any questions yet. We are building the research architecture.`;
+  document.getElementById('persp-wrap').style.display = 'block';
+}
+
+function generateInterview() {
+  const p = document.getElementById('perspective').value.trim() || '[perspective]';
+  const t = getTopic();
+  document.getElementById('interview-prompt').textContent =
+`We are running a STORM interview. Adopt this expert perspective:
+
+${p}
+
+Question under investigation: "${t}"
+
+As this expert:
+1. Answer the three key questions this perspective would ask. Ground every claim in a real source, study, case, or data point. If you cannot source a claim, flag it explicitly as inference.
+2. Name the one thing about this question that most other experts are getting wrong.
+3. State what evidence would change your view.
+
+Format your response with source attributions in brackets, e.g. [McKinsey 2023 SEA Digital Economy Report].`;
+  document.getElementById('interview-wrap').style.display = 'block';
+}
+
+function addC() {
+  const val = document.getElementById('c-input').value.trim();
+  if (!val) return;
+  contradictions.push(val);
+  document.getElementById('c-input').value = '';
+  renderLedger();
+}
+
+function renderLedger() {
+  document.getElementById('ledger').innerHTML = contradictions.map((c, i) =>
+    `<div class="ledger-item"><span>${c}</span><span class="ledger-remove" onclick="removeC(${i})" aria-label="Remove">×</span></div>`
+  ).join('');
+}
+
+function removeC(i) { contradictions.splice(i, 1); renderLedger(); }
+
+function generateLedger() {
+  if (!contradictions.length) { alert('Add at least one contradiction first.'); return; }
+  const list = contradictions.map((c, i) => `${i + 1}. ${c}`).join('\n');
+  document.getElementById('ledger-prompt').textContent =
+`We have completed the STORM interview stage. The following contradictions emerged across expert perspectives:
+
+${list}
+
+For each contradiction:
+1. Explain why reasonable experts disagree here — what different data, time horizons, or incentives produce different views?
+2. Identify which claim is better sourced.
+3. State what additional evidence would resolve the contradiction.
+4. Flag any contradiction that is actually a hidden unknown — a question nobody has good data on yet.
+
+Do not resolve contradictions by splitting the difference. Either one view is better supported, or the question is genuinely open.`;
+  document.getElementById('ledger-wrap').style.display = 'block';
+}
+
+function populateOutline() {
+  document.getElementById('outline-prompt').textContent =
+`We have completed the STORM interview and contradiction stages for this question: "${getTopic()}"
+
+Synthesize a source-mapped outline for the final report. Rules:
+- Every section heading must map to at least one specific source from the interviews
+- Contradictions that were not resolved must appear as their own section
+- Organize by decision relevance, not topic category
+- Each section should include: the key claim, the supporting source(s), and any open questions
+
+Format as:
+## [Section Title]
+Claim: ...
+Sources: ...
+Open questions: ...
+
+End the outline with a "What we still don't know" section listing genuine unknowns. Do not write the report yet.`;
+}
+
+function populateDraft() {
+  const t = getTopic();
+  document.getElementById('draft-prompt').textContent =
+`Draft the full Boardroom STORM report on: "${t}"
+
+Rules:
+- Write only from the approved outline — introduce no new claims not already in the outline
+- Every factual claim carries its source in brackets
+- Present contradictions as contradictions, not averaged away
+- End with a Decision Brief containing: the strongest argument for, the strongest argument against, the single biggest unknown, and the three questions the decision-maker should answer before committing
+
+Write for a senior decision-maker who will read this once and act.`;
+
+  document.getElementById('audit-prompt').textContent =
+`You are now a Co-STORM moderator auditing the report above.
+
+Your job is to find what the research missed. Specifically:
+1. What expert perspective was absent that would change a section?
+2. What assumption in the report has no source and is treated as obvious?
+3. What is the most important question the report did not ask?
+4. What would a hostile critic use from this report to argue the opposite conclusion?
+5. What would this report get wrong if published today and read again in 18 months?
+
+Output a moderator brief of no more than 400 words. Be adversarial. The goal is to make the report harder to attack, not easier to read.`;
+}
+
+function copyEl(id, btn) {
+  navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => {
+    btn.classList.add('copied');
+    btn.textContent = 'Copied ✓';
+    setTimeout(() => { btn.classList.remove('copied'); btn.textContent = 'Copy prompt'; }, 2000);
+  });
+}
+
+function restart() {
+  contradictions = [];
+  done = new Set([0]);
+  ['topic','role','perspective','c-input'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  ['framing-wrap','persp-wrap','interview-wrap','ledger-wrap'].forEach(id => { const el = document.getElementById(id); if(el) el.style.display='none'; });
+  document.getElementById('ledger').innerHTML = '';
+  goTo(0);
+}
+
+buildNav();
+populateOutline();
+populateDraft();
+</script>
+</body>
+</html>
