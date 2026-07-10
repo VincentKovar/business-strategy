@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Role Audit Guide · AI Super Practitioner Certification</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:    #0f2340;
+    --blue:    #1a4480;
+    --accent:  #2d6fd4;
+    --teal:    #0d7377;
+    --lteal:   #e0f5f5;
+    --purple:  #5b2d8e;
+    --lpurple: #f0e8fa;
+    --gold:    #c8860a;
+    --lgold:   #fef7e8;
+    --green:   #1a6b3a;
+    --lgreen:  #e8f5ee;
+    --ink:     #1a1a2e;
+    --body:    #3d3d4e;
+    --muted:   #6b6b7e;
+    --rule:    #dde1e9;
+    --bg:      #f7f8fc;
+    --white:   #ffffff;
+    --card-shadow: 0 2px 12px rgba(15,35,64,.08), 0 1px 3px rgba(15,35,64,.05);
+    --card-shadow-lg: 0 8px 32px rgba(15,35,64,.12), 0 2px 8px rgba(15,35,64,.07);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--body);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── PRINT ─────────────────────────────── */
+  @media print {
+    body { background: white; font-size: 11pt; }
+    .no-print { display: none; }
+    .hero { background: var(--navy) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page-break { page-break-before: always; }
+    .card, .archetype-card, .step-block { box-shadow: none; border: 1px solid #ddd; }
+  }
+
+  /* ── LAYOUT ─────────────────────────────── */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ── HERO ─────────────────────────────── */
+  .hero {
+    background: var(--navy);
+    position: relative;
+    overflow: hidden;
+    padding: 64px 0 52px;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 90% 20%, rgba(45,111,212,.25) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 10% 80%, rgba(13,115,119,.2) 0%, transparent 55%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 28px;
+    height: 1.5px;
+    background: var(--gold);
+  }
+
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: var(--white);
+    line-height: 1.15;
+    margin-bottom: 16px;
+    max-width: 560px;
+  }
+
+  .hero-sub {
+    font-size: 16px;
+    color: rgba(255,255,255,.62);
+    font-weight: 300;
+    max-width: 480px;
+    line-height: 1.6;
+  }
+
+  .hero-sub a {
+    color: rgba(255,255,255,.8);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* ── WHY BOX ─────────────────────────────── */
+  .why-box {
+    background: var(--white);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 10px 10px 0;
+    padding: 24px 28px;
+    margin: 40px 0 0;
+    box-shadow: var(--card-shadow);
+  }
+
+  .why-box .why-q {
+    font-weight: 600;
+    color: var(--accent);
+    font-size: 15px;
+    margin-bottom: 10px;
+  }
+
+  .why-box p {
+    font-size: 15px;
+    color: var(--body);
+    margin-bottom: 8px;
+  }
+
+  .why-box p:last-child { margin-bottom: 0; }
+
+  /* ── FRAMEWORK ─────────────────────────────── */
+  .framework-section {
+    margin-top: 52px;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .quote-card {
+    background: var(--ink);
+    border-radius: 12px;
+    padding: 36px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .quote-card::before {
+    content: '\201C';
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    font-family: 'DM Serif Display', serif;
+    font-size: 140px;
+    color: rgba(255,255,255,.04);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .quote-card blockquote {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: clamp(1.15rem, 2.5vw, 1.45rem);
+    color: var(--white);
+    line-height: 1.45;
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .quote-card cite {
+    font-size: 13px;
+    color: rgba(255,255,255,.45);
+    font-style: normal;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: .05em;
+  }
+
+  .framework-intro {
+    font-size: 15px;
+    color: var(--body);
+    margin: 24px 0 20px;
+    line-height: 1.7;
+  }
+
+  .jtbd-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 4px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+  }
+
+  .jtbd-table tr:nth-child(odd) td:first-child { background: var(--blue); }
+  .jtbd-table tr:nth-child(even) td:first-child { background: var(--accent); }
+
+  .jtbd-table td {
+    padding: 14px 18px;
+    font-size: 14.5px;
+    vertical-align: top;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .jtbd-table tr:last-child td { border-bottom: none; }
+
+  .jtbd-table td:first-child {
+    font-weight: 600;
+    color: var(--white);
+    width: 160px;
+    white-space: nowrap;
+  }
+
+  .jtbd-table td:last-child {
+    background: var(--white);
+    color: var(--body);
+  }
+
+  .friction-callout {
+    margin-top: 16px;
+    padding: 14px 20px;
+    background: var(--lgold);
+    border-left: 4px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    font-size: 14.5px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* ── STEP BLOCKS ─────────────────────────────── */
+  .steps-wrapper { margin-top: 52px; }
+
+  .step-block {
+    background: var(--white);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow-lg);
+    margin-bottom: 40px;
+  }
+
+  .step-header {
+    display: flex;
+    align-items: stretch;
+    background: var(--ink);
+  }
+
+  .step-num {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--blue);
+    padding: 20px 24px;
+    min-width: 80px;
+    text-align: center;
+  }
+
+  .step-num .step-word {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.55);
+    margin-bottom: 4px;
+  }
+
+  .step-num .step-digit {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.6rem;
+    color: var(--white);
+    line-height: 1;
+  }
+
+  .step-title-area {
+    padding: 20px 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .step-title-area h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.35rem;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+
+  .step-title-area p {
+    font-size: 13.5px;
+    color: rgba(255,255,255,.5);
+    font-weight: 300;
+  }
+
+  .step-body {
+    padding: 32px;
+  }
+
+  /* ── PART LABELS ─────────────────────────────── */
+  .part-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--blue);
+    font-weight: 500;
+    margin-bottom: 10px;
+    margin-top: 28px;
+  }
+
+  .part-label:first-child { margin-top: 0; }
+
+  .part-desc {
+    font-size: 14.5px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    line-height: 1.65;
+  }
+
+  /* ── EXAMPLE BOX ─────────────────────────────── */
+  .example-box {
+    background: var(--lgold);
+    border-left: 4px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    font-size: 14px;
+  }
+
+  .example-box .ex-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  .example-box p { color: var(--ink); line-height: 1.6; }
+  .example-box p + p { margin-top: 6px; }
+  .example-box strong { color: var(--ink); }
+
+  /* ── INPUT AREAS ─────────────────────────────── */
+  .input-field {
+    background: var(--bg);
+    border: 1.5px solid var(--rule);
+    border-radius: 8px;
+    padding: 16px 18px;
+    font-size: 14px;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-style: italic;
+    min-height: 72px;
+    display: block;
+    width: 100%;
+    transition: border-color .2s;
+    resize: vertical;
+    margin-bottom: 8px;
+  }
+
+  .input-field:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: var(--white);
+    color: var(--ink);
+    font-style: normal;
+  }
+
+  .input-hint {
+    font-size: 12.5px;
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 20px;
+  }
+
+  /* ── MICRO-JOBS TABLE ─────────────────────────────── */
+  .friction-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 12px;
+  }
+
+  .friction-table th {
+    background: var(--blue);
+    color: var(--white);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .05em;
+    padding: 12px 14px;
+    text-align: left;
+  }
+
+  .friction-table td {
+    border-bottom: 1px solid var(--rule);
+    padding: 0;
+    vertical-align: middle;
+  }
+
+  .friction-table tr:last-child td { border-bottom: none; }
+  .friction-table tr:nth-child(odd) td { background: var(--bg); }
+  .friction-table tr:nth-child(even) td { background: var(--white); }
+
+  .friction-table td input,
+  .friction-table td select {
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    color: var(--ink);
+    outline: none;
+  }
+
+  .friction-table td input::placeholder { color: #bbb; font-style: italic; }
+
+  .friction-table td:last-child {
+    width: 120px;
+    text-align: center;
+  }
+
+  .friction-table td:last-child input {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .table-hint {
+    font-size: 12.5px;
+    color: var(--muted);
+    font-style: italic;
+    margin-top: 8px;
+  }
+
+  /* ── ARCHETYPE CARDS ─────────────────────────────── */
+  .archetypes-intro {
+    font-size: 15px;
+    color: var(--body);
+    margin-bottom: 28px;
+    line-height: 1.7;
+  }
+
+  .archetype-card {
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    box-shadow: var(--card-shadow);
+  }
+
+  .arch-header {
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .arch-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+
+  .arch-header-text h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    color: var(--white);
+    margin-bottom: 2px;
+  }
+
+  .arch-header-text .tagline {
+    font-size: 12.5px;
+    color: rgba(255,255,255,.6);
+    font-style: italic;
+    font-weight: 300;
+  }
+
+  .arch-body {
+    display: grid;
+    grid-template-columns: 1fr 1.8fr;
+    gap: 0;
+  }
+
+  @media (max-width: 600px) {
+    .arch-body { grid-template-columns: 1fr; }
+  }
+
+  .arch-description {
+    padding: 20px 22px;
+    font-size: 14px;
+    color: var(--body);
+    line-height: 1.65;
+    border-right: 1px solid var(--rule);
+    border-bottom: none;
+  }
+
+  .arch-description .best-label {
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: .05em;
+    margin-bottom: 8px;
+    margin-top: 14px;
+  }
+
+  .arch-description ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .arch-description ul li {
+    font-size: 13.5px;
+    color: var(--body);
+    padding: 3px 0 3px 16px;
+    position: relative;
+  }
+
+  .arch-description ul li::before {
+    content: '·';
+    position: absolute;
+    left: 4px;
+    font-weight: 700;
+  }
+
+  .arch-example {
+    padding: 20px 22px;
+    background: var(--white);
+  }
+
+  .arch-example .ex-micro {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .arch-example .try-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .prompt-block {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    color: var(--ink);
+    line-height: 1.6;
+    border: 1px solid var(--rule);
+  }
+
+  /* Archetype color overrides */
+  .arch-automate .arch-header { background: var(--teal); }
+  .arch-automate .arch-description { background: var(--lteal); }
+  .arch-automate .arch-description .best-label { color: var(--teal); }
+  .arch-automate .arch-example .try-label { color: var(--teal); }
+  .arch-automate .arch-description ul li::before { color: var(--teal); }
+
+  .arch-augment .arch-header { background: var(--purple); }
+  .arch-augment .arch-description { background: var(--lpurple); }
+  .arch-augment .arch-description .best-label { color: var(--purple); }
+  .arch-augment .arch-example .try-label { color: var(--purple); }
+  .arch-augment .arch-description ul li::before { color: var(--purple); }
+
+  .arch-partner .arch-header { background: var(--blue); }
+  .arch-partner .arch-description { background: #e8eef8; }
+  .arch-partner .arch-description .best-label { color: var(--blue); }
+  .arch-partner .arch-example .try-label { color: var(--blue); }
+  .arch-partner .arch-description ul li::before { color: var(--blue); }
+
+  /* ── MAPPING TABLE ─────────────────────────────── */
+  .mapping-intro {
+    font-size: 14.5px;
+    color: var(--body);
+    margin: 24px 0 16px;
+    padding: 14px 18px;
+    background: var(--lgold);
+    border-left: 4px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+  }
+
+  .mapping-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+  }
+
+  .mapping-table th {
+    background: var(--ink);
+    color: var(--white);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 12px 14px;
+    text-align: left;
+    letter-spacing: .04em;
+  }
+
+  .mapping-table td {
+    border-bottom: 1px solid var(--rule);
+    padding: 0;
+    vertical-align: middle;
+  }
+
+  .mapping-table tr:last-child td { border-bottom: none; }
+  .mapping-table tr:nth-child(odd) td { background: var(--bg); }
+  .mapping-table tr:nth-child(even) td { background: var(--white); }
+
+  .mapping-table td input,
+  .mapping-table td select {
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    color: var(--ink);
+    outline: none;
+    appearance: none;
+  }
+
+  .mapping-table td select { cursor: pointer; }
+  .mapping-table td input::placeholder { color: #bbb; font-style: italic; }
+
+  .mapping-table td:nth-child(2) { width: 160px; }
+  .mapping-table td:nth-child(3) { width: 120px; text-align: center; }
+  .mapping-table td:nth-child(3) input { text-align: center; font-weight: 600; }
+
+  /* ── ACTION PLAN ─────────────────────────────── */
+  .qw-box {
+    background: var(--lgreen);
+    border-left: 4px solid var(--green);
+    border-radius: 0 10px 10px 0;
+    padding: 22px 26px;
+    margin-bottom: 24px;
+  }
+
+  .qw-box .qw-title {
+    font-weight: 700;
+    color: var(--green);
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+
+  .qw-box ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 12px;
+  }
+
+  .qw-box ul li {
+    font-size: 14.5px;
+    color: var(--ink);
+    padding: 4px 0 4px 24px;
+    position: relative;
+  }
+
+  .qw-box ul li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--green);
+    font-weight: 700;
+  }
+
+  .qw-box .examples {
+    font-size: 13.5px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .qw-helper {
+    font-size: 14.5px;
+    color: var(--body);
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+
+  .action-plan {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow-lg);
+  }
+
+  .action-plan thead tr th {
+    background: var(--green);
+    color: var(--white);
+    font-size: 13px;
+    letter-spacing: .05em;
+    padding: 16px 20px;
+    text-align: left;
+    font-weight: 600;
+  }
+
+  .action-plan tbody tr td {
+    border-bottom: 1px solid var(--rule);
+    vertical-align: middle;
+  }
+
+  .action-plan tbody tr:last-child td { border-bottom: none; }
+  .action-plan tbody tr:nth-child(odd) td:first-child { background: var(--bg); }
+  .action-plan tbody tr:nth-child(even) td:first-child { background: #f0f8f4; }
+
+  .action-plan td:first-child {
+    font-weight: 600;
+    font-size: 13.5px;
+    color: var(--ink);
+    padding: 16px 18px;
+    width: 220px;
+    border-right: 1px solid var(--rule);
+    background: var(--bg);
+  }
+
+  .action-plan td:last-child { background: var(--white); }
+
+  .action-plan td input,
+  .action-plan td textarea,
+  .action-plan td select {
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 16px 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    color: var(--ink);
+    outline: none;
+    resize: none;
+    min-height: 52px;
+  }
+
+  .action-plan td textarea { min-height: 80px; }
+  .action-plan td input::placeholder,
+  .action-plan td textarea::placeholder { color: #bbb; font-style: italic; }
+
+  .arch-radio-group {
+    display: flex;
+    gap: 8px;
+    padding: 14px 18px;
+    flex-wrap: wrap;
+  }
+
+  .arch-radio {
+    display: none;
+  }
+
+  .arch-radio-label {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--rule);
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--muted);
+    transition: all .18s;
+    user-select: none;
+  }
+
+  .arch-radio:checked + .arch-radio-label {
+    background: var(--green);
+    border-color: var(--green);
+    color: white;
+  }
+
+  /* ── QUICK REFERENCE TABLE ─────────────────────────────── */
+  .qr-section {
+    margin-top: 52px;
+  }
+
+  .qr-title {
+    background: var(--ink);
+    color: var(--gold);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    padding: 14px 20px;
+    border-radius: 10px 10px 0 0;
+    font-weight: 500;
+  }
+
+  .qr-table {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: var(--card-shadow-lg);
+    border-radius: 0 0 10px 10px;
+    overflow: hidden;
+  }
+
+  .qr-table th {
+    padding: 14px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--white);
+    text-align: center;
+  }
+
+  .qr-table th:nth-child(2) { background: var(--teal); }
+  .qr-table th:nth-child(3) { background: var(--purple); }
+  .qr-table th:nth-child(4) { background: var(--blue); }
+  .qr-table th:first-child { background: var(--ink); text-align: left; }
+
+  .qr-table td {
+    padding: 13px 18px;
+    font-size: 13.5px;
+    color: var(--body);
+    border-bottom: 1px solid var(--rule);
+    text-align: center;
+    vertical-align: top;
+  }
+
+  .qr-table td:first-child {
+    font-weight: 600;
+    color: var(--ink);
+    text-align: left;
+    background: var(--bg);
+  }
+
+  .qr-table tr:nth-child(even) td { background: var(--white); }
+  .qr-table tr:nth-child(even) td:first-child { background: var(--bg); }
+  .qr-table tr:last-child td { border-bottom: none; }
+
+  /* ── REMEMBER BOX ─────────────────────────────── */
+  .remember-box {
+    background: var(--lgold);
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-top: 44px;
+    margin-bottom: 60px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    box-shadow: var(--card-shadow);
+  }
+
+  .remember-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .remember-box .rb-title {
+    font-weight: 700;
+    color: var(--gold);
+    font-size: 14px;
+    margin-bottom: 8px;
+    letter-spacing: .03em;
+  }
+
+  .remember-box p {
+    font-size: 14.5px;
+    color: var(--ink);
+    line-height: 1.7;
+  }
+
+  /* ── PRINT BUTTON ─────────────────────────────── */
+  .print-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(247,248,252,.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--rule);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .print-bar .brand {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .12em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .btn-print {
+    background: var(--blue);
+    color: var(--white);
+    border: none;
+    border-radius: 7px;
+    padding: 8px 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: background .18s;
+  }
+
+  .btn-print:hover { background: var(--navy); }
+
+  /* ── FOOTER ─────────────────────────────── */
+  .footer {
+    background: var(--navy);
+    padding: 32px 0;
+    margin-top: 0;
+  }
+
+  .footer .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .footer p {
+    font-size: 13px;
+    color: rgba(255,255,255,.4);
+  }
+
+  .footer .course-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .12em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  /* ── SECTION DIVIDER ─────────────────────────────── */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 48px 0 32px;
+  }
+
+  .section-divider .divider-line {
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  .section-divider .divider-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<!-- STICKY PRINT BAR -->
+<div class="print-bar no-print">
+  <span class="brand">AI Super Practitioner Certification</span>
+  <button class="btn-print" onclick="window.print()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    Save / Print
+  </button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">Student Handout · AI Super Practitioner Certification</div>
+    <h1>AI Role Audit Guide</h1>
+    <p class="hero-sub">A Jobs-to-Be-Done approach to mapping your role against AI capabilities.<br>
+    <a href="https://jobs-to-be-done.com" target="_blank">Read more about the JTBD Framework →</a></p>
+
+    <div class="why-box">
+      <div class="why-q">Why use the Jobs-to-Be-Done framework?</div>
+      <p>Instead of asking: <em>"What can AI do?"</em> — let's ask a better question: <strong>"What are you actually trying to get done — and where is the friction that's costing you time and energy?"</strong></p>
+      <p>That shift in framing is what makes this exercise produce real actions and save you from having to learn 100 tools.</p>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+
+  <!-- JTBD FRAMEWORK -->
+  <div class="framework-section">
+    <div class="section-label">The Jobs-to-Be-Done Framework</div>
+
+    <div class="quote-card">
+      <blockquote>"People don't buy products. They hire them to get a job done."</blockquote>
+      <cite>— Clayton Christensen, Harvard Business School</cite>
+    </div>
+
+    <p class="framework-intro">
+      Originally developed as a product strategy framework, JTBD reframes how we think about value. Instead of asking what a tool does, it asks what outcome a person is trying to achieve — and what is standing in the way.
+    </p>
+    <p class="framework-intro" style="margin-top:-8px;">
+      Applied to your career, JTBD helps you see your role not as a list of tasks, but as a set of jobs you are hired to accomplish. Each job has:
+    </p>
+
+    <table class="jtbd-table">
+      <tr>
+        <td>Functional job</td>
+        <td>The concrete outcome you are responsible for delivering — the <em>'what'</em></td>
+      </tr>
+      <tr>
+        <td>Micro-jobs</td>
+        <td>The smaller, repeatable tasks that make up how you deliver that outcome — the <em>'how'</em></td>
+      </tr>
+      <tr>
+        <td>Friction points</td>
+        <td>The parts of those micro-jobs that are slow, frustrating, repetitive, or low-value — the <em>'where it hurts'</em></td>
+      </tr>
+    </table>
+
+    <div class="friction-callout">
+      Friction is where AI creates the most immediate value. This audit is designed to find it.
+    </div>
+  </div>
+
+  <!-- STEPS -->
+  <div class="steps-wrapper">
+
+    <!-- ── STEP 1 ── -->
+    <div class="step-block">
+      <div class="step-header">
+        <div class="step-num">
+          <span class="step-word">Step</span>
+          <span class="step-digit">1</span>
+        </div>
+        <div class="step-title-area">
+          <h2>Map Your Jobs &amp; Friction Points</h2>
+          <p>Identify what you are hired to do — and where it costs you the most</p>
+        </div>
+      </div>
+
+      <div class="step-body">
+
+        <div class="part-label">Part A · Your Core Functional Job</div>
+        <p class="part-desc">Your core functional job is the single most important outcome your role exists to deliver. Not your job title — the result your organisation would notice if it stopped happening.</p>
+
+        <div class="example-box">
+          <div class="ex-label">Example</div>
+          <p><strong>Job title:</strong> Operations Manager</p>
+          <p><strong>Core functional job:</strong> Ensure the business runs predictably so leadership can focus on growth</p>
+        </div>
+
+        <label style="font-size:13px;font-weight:600;color:var(--ink);display:block;margin-bottom:8px;">My Core Functional Job</label>
+        <textarea class="input-field" placeholder="I am hired to…" rows="3"></textarea>
+
+        <div class="part-label" style="margin-top:32px;">Part B · Your Micro-Jobs &amp; Friction Points</div>
+        <p class="part-desc">List the recurring tasks that make up how you deliver your core job. Then rate each one: how much friction does it create? (1 = low, 3 = high). Be honest — the high-friction items are your biggest AI opportunities.</p>
+
+        <table class="friction-table">
+          <thead>
+            <tr>
+              <th>Micro-Job (recurring task)</th>
+              <th>Friction Point (what makes it hard / slow)</th>
+              <th>Score 1–3</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><input type="text" placeholder="e.g. Summarise meeting notes…"></td><td><input type="text" placeholder="e.g. Takes 30 min, always feels rushed…"></td><td><input type="text" maxlength="1" placeholder="—"></td></tr>
+            <tr><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td><td><input type="text" maxlength="1" placeholder="—"></td></tr>
+            <tr><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td><td><input type="text" maxlength="1" placeholder="—"></td></tr>
+            <tr><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td><td><input type="text" maxlength="1" placeholder="—"></td></tr>
+            <tr><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td><td><input type="text" maxlength="1" placeholder="—"></td></tr>
+            <tr><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td><td><input type="text" maxlength="1" placeholder="—"></td></tr>
+          </tbody>
+        </table>
+        <p class="table-hint">Circle or highlight your highest-friction items before moving to Step 2.</p>
+
+      </div>
+    </div>
+
+    <!-- ── STEP 2 ── -->
+    <div class="step-block">
+      <div class="step-header">
+        <div class="step-num">
+          <span class="step-word">Step</span>
+          <span class="step-digit">2</span>
+        </div>
+        <div class="step-title-area">
+          <h2>AI Integration Strategy</h2>
+          <p>For each micro-job, choose the right relationship with AI</p>
+        </div>
+      </div>
+
+      <div class="step-body">
+
+        <p class="archetypes-intro">Not every task belongs in the same AI relationship. The three archetypes below define how much human judgment stays in the loop — and choosing the right one is what separates effective AI use from frustrating AI use.</p>
+
+        <!-- AUTOMATE -->
+        <div class="archetype-card arch-automate">
+          <div class="arch-header">
+            <div class="arch-icon">⚙</div>
+            <div class="arch-header-text">
+              <h3>Automate</h3>
+              <span class="tagline">Hands-off execution</span>
+            </div>
+          </div>
+          <div class="arch-body">
+            <div class="arch-description">
+              <p>AI handles the task completely based on predefined rules or inputs. You review the output — you do not co-create it.</p>
+              <div class="best-label">Best for tasks that are:</div>
+              <ul>
+                <li>Repetitive and rule-based</li>
+                <li>Low-risk if slightly imperfect</li>
+                <li>Time-consuming but low-judgment</li>
+              </ul>
+            </div>
+            <div class="arch-example">
+              <div class="ex-micro">Example micro-job: Summarising meeting notes into action items</div>
+              <div class="try-label">Try this prompt:</div>
+              <div class="prompt-block">"Here are my meeting notes. Extract all action items, assign owners where mentioned, and format as a table with columns: Action, Owner, Deadline."</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AUGMENT -->
+        <div class="archetype-card arch-augment">
+          <div class="arch-header">
+            <div class="arch-icon">⚡</div>
+            <div class="arch-header-text">
+              <h3>Augment</h3>
+              <span class="tagline">AI does the heavy lifting — you apply the judgment</span>
+            </div>
+          </div>
+          <div class="arch-body">
+            <div class="arch-description">
+              <p>AI handles the analysis, synthesis, or first draft. You act as the editor and strategic filter — shaping, refining, and approving the output.</p>
+              <div class="best-label">Best for tasks that are:</div>
+              <ul>
+                <li>Complex but pattern-based</li>
+                <li>High output volume, moderate stakes</li>
+                <li>Expertise-dependent with known structure</li>
+              </ul>
+            </div>
+            <div class="arch-example">
+              <div class="ex-micro">Example micro-job: Writing a project status report for leadership</div>
+              <div class="try-label">Try this prompt:</div>
+              <div class="prompt-block">"Here is my raw project data and notes. Draft a 1-page leadership update: headline status, 3 key updates, top risk, and recommended next step. Tone: direct and confident."</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PARTNER -->
+        <div class="archetype-card arch-partner">
+          <div class="arch-header">
+            <div class="arch-icon">🤝</div>
+            <div class="arch-header-text">
+              <h3>Partner</h3>
+              <span class="tagline">Interactive thinking — you and AI building ideas together</span>
+            </div>
+          </div>
+          <div class="arch-body">
+            <div class="arch-description">
+              <p>Interactive brainstorming, scenario testing, or stress-testing ideas. You bounce concepts back and forth — AI challenges your thinking, fills gaps, and surfaces angles you haven't considered.</p>
+              <div class="best-label">Best for tasks that are:</div>
+              <ul>
+                <li>High-stakes decisions or strategies</li>
+                <li>Novel problems without clear answers</li>
+                <li>Ideas that need challenging before sharing</li>
+              </ul>
+            </div>
+            <div class="arch-example">
+              <div class="ex-micro">Example micro-job: Preparing for a difficult stakeholder conversation</div>
+              <div class="try-label">Try this prompt:</div>
+              <div class="prompt-block">"I have a tough conversation coming up with [stakeholder]. Their concern is X. My position is Y. Play devil's advocate — what are the three strongest arguments against my position, and how should I respond to each?"</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MAPPING TABLE -->
+        <div class="mapping-intro">
+          <strong>Now map your micro-jobs to an archetype:</strong> Go back to your list from Step 1. Assign each one: <strong>Automate (A)</strong>, <strong>Augment (AU)</strong>, or <strong>Partner (P)</strong>. Focus on your highest-friction items first.
+        </div>
+
+        <table class="mapping-table">
+          <thead>
+            <tr>
+              <th>Micro-Job</th>
+              <th>Archetype</th>
+              <th>Friction Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="text" placeholder="Paste from Step 1…"></td>
+              <td>
+                <select>
+                  <option value="">— select —</option>
+                  <option value="A">⚙ Automate (A)</option>
+                  <option value="AU">⚡ Augment (AU)</option>
+                  <option value="P">🤝 Partner (P)</option>
+                </select>
+              </td>
+              <td><input type="text" maxlength="1" placeholder="—"></td>
+            </tr>
+            <tr>
+              <td><input type="text" placeholder=""></td>
+              <td><select><option value="">— select —</option><option value="A">⚙ Automate (A)</option><option value="AU">⚡ Augment (AU)</option><option value="P">🤝 Partner (P)</option></select></td>
+              <td><input type="text" maxlength="1" placeholder="—"></td>
+            </tr>
+            <tr>
+              <td><input type="text" placeholder=""></td>
+              <td><select><option value="">— select —</option><option value="A">⚙ Automate (A)</option><option value="AU">⚡ Augment (AU)</option><option value="P">🤝 Partner (P)</option></select></td>
+              <td><input type="text" maxlength="1" placeholder="—"></td>
+            </tr>
+            <tr>
+              <td><input type="text" placeholder=""></td>
+              <td><select><option value="">— select —</option><option value="A">⚙ Automate (A)</option><option value="AU">⚡ Augment (AU)</option><option value="P">🤝 Partner (P)</option></select></td>
+              <td><input type="text" maxlength="1" placeholder="—"></td>
+            </tr>
+            <tr>
+              <td><input type="text" placeholder=""></td>
+              <td><select><option value="">— select —</option><option value="A">⚙ Automate (A)</option><option value="AU">⚡ Augment (AU)</option><option value="P">🤝 Partner (P)</option></select></td>
+              <td><input type="text" maxlength="1" placeholder="—"></td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+
+    <!-- ── STEP 3 ── -->
+    <div class="step-block">
+      <div class="step-header">
+        <div class="step-num" style="background:var(--green);">
+          <span class="step-word">Step</span>
+          <span class="step-digit">3</span>
+        </div>
+        <div class="step-title-area">
+          <h2>Your AI Action Plan</h2>
+          <p>Select your High-ROI Quick Win and build your first Claude habit</p>
+        </div>
+      </div>
+
+      <div class="step-body">
+
+        <div class="qw-box">
+          <div class="qw-title">What is a High-ROI Quick Win?</div>
+          <p style="font-size:14.5px;color:var(--ink);margin-bottom:12px;">A High-ROI Quick Win is a micro-job that is:</p>
+          <ul>
+            <li>Repetitive — you do it at least weekly</li>
+            <li>Low-risk — an imperfect first output is recoverable</li>
+            <li>High friction — it currently costs you meaningful time or energy</li>
+          </ul>
+          <p class="examples">Examples: meeting synthesis, data formatting, initial drafting, email summarising, report structuring</p>
+        </div>
+
+        <p class="qw-helper">Look at your mapping table from Step 2. Your Quick Win is almost always the task with a friction score of 3 that you assigned to <strong>Automate</strong> or <strong>Augment</strong> — because those are the places where AI can take the most work off your plate immediately.</p>
+
+        <table class="action-plan">
+          <thead>
+            <tr><th colspan="2">My High-ROI Quick Win Action Plan</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>My Quick Win micro-job is:</td>
+              <td><input type="text" placeholder="The specific task you're starting with…"></td>
+            </tr>
+            <tr>
+              <td>The friction it causes me today:</td>
+              <td><input type="text" placeholder="What is it costing you — time, energy, quality?"></td>
+            </tr>
+            <tr>
+              <td>Archetype I am using:</td>
+              <td>
+                <div class="arch-radio-group">
+                  <input type="radio" name="arch" id="r-auto" class="arch-radio">
+                  <label for="r-auto" class="arch-radio-label">⚙ Automate</label>
+                  <input type="radio" name="arch" id="r-aug" class="arch-radio">
+                  <label for="r-aug" class="arch-radio-label">⚡ Augment</label>
+                  <input type="radio" name="arch" id="r-part" class="arch-radio">
+                  <label for="r-part" class="arch-radio-label">🤝 Partner</label>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>The Claude prompt I will use:</td>
+              <td><textarea placeholder="Write your prompt here — be specific about the task, the context, and the format you want…"></textarea></td>
+            </tr>
+            <tr>
+              <td>When I will first use this:</td>
+              <td><input type="text" placeholder="e.g. This Thursday's team meeting…"></td>
+            </tr>
+            <tr>
+              <td>How I will know it worked:</td>
+              <td><input type="text" placeholder="What does success look like for you?"></td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+
+  </div><!-- /steps-wrapper -->
+
+  <!-- QUICK REFERENCE TABLE -->
+  <div class="qr-section">
+    <div class="qr-title">Quick Reference · The 3 Archetypes at a Glance</div>
+    <table class="qr-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>⚙ Automate</th>
+          <th>⚡ Augment</th>
+          <th>🤝 Partner</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Human role</td>
+          <td>Reviewer</td>
+          <td>Editor + Strategist</td>
+          <td>Thinking partner</td>
+        </tr>
+        <tr>
+          <td>AI role</td>
+          <td>Executor</td>
+          <td>Heavy lifter</td>
+          <td>Challenger + generator</td>
+        </tr>
+        <tr>
+          <td>Best for</td>
+          <td>Repetitive, low-risk tasks</td>
+          <td>Volume work requiring expertise</td>
+          <td>High-stakes, novel problems</td>
+        </tr>
+        <tr>
+          <td>Risk if over-used</td>
+          <td>Missing context-specific nuance</td>
+          <td>Under-editing AI output</td>
+          <td>Losing your own point of view</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- REMEMBER BOX -->
+  <div class="remember-box">
+    <div class="remember-icon">🔁</div>
+    <div>
+      <div class="rb-title">Remember</div>
+      <p>This audit is not a one-time exercise. Revisit it every 90 days — or whenever your role changes. As AI capabilities grow, tasks you could only Partner on today may become Automate candidates tomorrow.</p>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="container">
+    <p>AI Role Audit Guide · Student Handout</p>
+    <span class="course-tag">AI Super Practitioner Certification</span>
+  </div>
+</div>
+
+</body>
+</html>
