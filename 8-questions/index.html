@@ -1,31 +1,866 @@
-# The Eight Questions — Strategy Ledger
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Eight Questions — A Strategy Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --parchment: #F7F3EA;
+    --parchment-card: #FDFBF6;
+    --ink: #2B2A26;
+    --ink-soft: #5B584E;
+    --clay: #8A6D4A;
+    --clay-dark: #6E5539;
+    --olive: #4A5D46;
+    --olive-dark: #3A4A37;
+    --brass: #C9A876;
+    --brass-light: #E4D3AE;
+    --rule: #D9D0BC;
+    --error: #A34A3C;
+  }
 
-A self-guided interview tool based on the "Eight Questions" GTM strategy framework. Walks a leader through eight questions one at a time, then calls the Claude API to generate three key insights and five ordered action items based on their answers.
+  * { box-sizing: border-box; }
 
-## Usage
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--parchment);
+    color: var(--ink);
+    font-family: 'Source Sans 3', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
 
-Open `index.html` in a browser, or visit it via GitHub Pages once deployed (see below). No build step, no dependencies to install — it's a single self-contained HTML file (vanilla JS, no framework).
+  #root { min-height: 100vh; }
 
-## Deployment (GitHub Pages)
+  .serif { font-family: 'Fraunces', serif; }
 
-This folder is structured so GitHub Pages can serve it directly:
+  .eyebrow {
+    font-family: 'Fraunces', serif;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--clay);
+    font-weight: 500;
+  }
 
-1. Push this repo to GitHub (see root-level instructions).
-2. In the repo, go to **Settings → Pages**.
-3. Under "Build and deployment," set **Source** to `Deploy from a branch`.
-4. Set **Branch** to `main` (or whichever branch you push to) and folder to `/ (root)`.
-5. Save. GitHub will publish the whole repo; this file will be live at:
+  ::selection { background: var(--brass-light); }
 
-   ```
-   https://<your-username>.github.io/business-strategy/8-questions/
-   ```
+  .texture {
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(138,109,74,0.035) 0%, transparent 50%),
+      radial-gradient(circle at 80% 60%, rgba(74,93,70,0.03) 0%, transparent 50%);
+  }
 
-   (GitHub Pages automatically serves `index.html` when a folder is requested, which is why this file is named `index.html` rather than something else.)
+  a { color: var(--clay-dark); }
 
-It can take 1–2 minutes for Pages to build after each push.
+  button { font-family: inherit; cursor: pointer; }
+  button:focus-visible, textarea:focus-visible, input:focus-visible {
+    outline: 2px solid var(--clay);
+    outline-offset: 2px;
+  }
 
-## Notes
+  textarea { font-family: 'Source Sans 3', sans-serif; }
 
-- No data is saved or persisted — refreshing resets the tool.
-- The analysis step calls `api.anthropic.com` directly from the browser; it will only work where that endpoint is reachable and authorized for your use.
-- Export options (Save as PDF, Save as Markdown) are available on the results screen.
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .fade-up { animation: fadeUp 0.5s ease both; }
+  .fade-in { animation: fadeIn 0.5s ease both; }
+
+  .btn-primary {
+    background: var(--ink); color: var(--parchment-card);
+    border: none; border-radius: 3px; padding: 15px 30px;
+    font-family: 'Fraunces', serif; font-size: 16px; font-weight: 500;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .btn-primary:hover:not(:disabled) { background: var(--clay-dark); transform: translateX(2px); }
+  .btn-primary:disabled { background: var(--rule); cursor: not-allowed; }
+
+  .btn-olive {
+    background: var(--olive); color: var(--parchment-card);
+    border: none; border-radius: 3px; padding: 15px 30px;
+    font-family: 'Fraunces', serif; font-size: 16px; font-weight: 500;
+  }
+  .btn-olive:hover { background: var(--olive-dark); }
+
+  .btn-ghost {
+    background: none; border: none; color: var(--ink-soft); font-size: 15px;
+  }
+
+  .index-item {
+    display: flex; align-items: baseline; gap: 10px;
+    background: transparent; border: none; width: 100%;
+    padding: 9px 6px; text-align: left; border-radius: 4px;
+    transition: background 0.2s ease;
+    font-family: 'Fraunces', serif;
+  }
+  .index-item:hover:not(:disabled) { background: rgba(138,109,74,0.06); }
+  .index-item:disabled { cursor: default; }
+
+  textarea.qbox {
+    width: 100%; font-size: 16.5px; line-height: 1.6;
+    padding: 18px 20px; border-radius: 5px;
+    border: 1px solid var(--rule); background: var(--parchment-card);
+    color: var(--ink); resize: vertical; min-height: 140px;
+  }
+
+  .spinner {
+    width: 46px; height: 46px; border-radius: 50%;
+    border: 2px solid var(--rule); border-top-color: var(--clay);
+    animation: spin 1s linear infinite;
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------------------------------------------------------
+     CONTENT
+  --------------------------------------------------------- */
+  var QUESTIONS = [
+    {
+      id: 1, title: "Where can you grow the most?", short: "Focus",
+      frame: "Not where you could grow — where the growth is largest and least contested. The sharper this answer, the easier every downstream decision becomes.",
+      placeholder: "Which segment, role, or market has the most upside for you right now — and why haven't you gone all-in on it yet?"
+    },
+    {
+      id: 2, title: "Which offer creates the highest customer value?", short: "Value",
+      frame: "The first thing customers buy is rarely the thing that keeps them. Value compounds when you keep asking what they need next, and let that question — not a strategy offsite — set the roadmap.",
+      placeholder: "What does your best customer actually get the most value from, and how did you find that out?"
+    },
+    {
+      id: 3, title: "What is your differentiated point of view?", short: "POV",
+      frame: "A product is a feature list. A point of view is a belief people can join. The strongest ones name what's broken about the old way and give it a name.",
+      placeholder: "What do you believe about your market that most competitors don't say out loud?"
+    },
+    {
+      id: 4, title: "Which motion gets you to revenue fastest?", short: "Motion",
+      frame: "The right motion depends on the trust required to buy. A $500 tool and a $100K engagement earn trust in completely different ways — and at completely different speeds.",
+      placeholder: "What's the shortest real path you have from 'never heard of you' to 'signed'?"
+    },
+    {
+      id: 5, title: "What is the ROI in your customer's mind?", short: "ROI",
+      frame: "Rarely the feature. Almost always the moment something clicked — proof, in their own context, that this works. Find that moment and you find your real value proposition.",
+      placeholder: "What is the exact moment a customer realizes this was worth it?"
+    },
+    {
+      id: 6, title: "How do you expand your customers over time?", short: "Expansion",
+      frame: "Upsell isn't a sales tactic bolted on after the sale — it's a value ladder designed in advance, so 'give me more' always has a next rung.",
+      placeholder: "When a happy customer wants more from you, is there already a clear next step — or do you improvise one?"
+    },
+    {
+      id: 7, title: "Which metric shows the health of your business?", short: "Metric",
+      frame: "Every stage has one number that tells the truth faster than the rest. Not a dashboard of forty metrics — the one you'd defend in a room with no notice.",
+      placeholder: "If you could only report one number to prove the business is healthy, what is it — and is it the one you actually track?"
+    },
+    {
+      id: 8, title: "Do you have clarity, alignment, and trust as a leader?", short: "Trust",
+      frame: "The most important question, and the one most teams skip. Every hire, every acquisition, every hard call gets easier when the other seven questions are a shared filter, not a private opinion.",
+      placeholder: "Where does your leadership team actually disagree right now — and does everyone know it?"
+    }
+  ];
+  var TOTAL = QUESTIONS.length;
+
+  /* ---------------------------------------------------------
+     STATE
+  --------------------------------------------------------- */
+  var state = {
+    stage: "welcome", // welcome | questions | summary | loading | results | error
+    current: 0,
+    answers: new Array(TOTAL).fill(""),
+    analysis: null,
+    errorMsg: "",
+    loadingMsgIdx: 0
+  };
+  var loadingTimer = null;
+
+  var root = document.getElementById("root");
+
+  function esc(str) {
+    var div = document.createElement("div");
+    div.textContent = str == null ? "" : String(str);
+    return div.innerHTML;
+  }
+
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    attrs = attrs || {};
+    for (var k in attrs) {
+      if (!attrs.hasOwnProperty(k)) continue;
+      if (k === "style" && typeof attrs[k] === "object") {
+        for (var sk in attrs[k]) node.style[sk] = attrs[k][sk];
+      } else if (k.indexOf("on") === 0 && typeof attrs[k] === "function") {
+        node.addEventListener(k.slice(2).toLowerCase(), attrs[k]);
+      } else if (k === "class") {
+        node.className = attrs[k];
+      } else if (k === "html") {
+        node.innerHTML = attrs[k];
+      } else {
+        node.setAttribute(k, attrs[k]);
+      }
+    }
+    (children || []).forEach(function (c) {
+      if (c == null) return;
+      if (typeof c === "string") node.appendChild(document.createTextNode(c));
+      else node.appendChild(c);
+    });
+    return node;
+  }
+
+  /* ---------------------------------------------------------
+     API
+  --------------------------------------------------------- */
+  function generateAnalysis(answers, cb) {
+    var qa = QUESTIONS.map(function (q, i) {
+      return "Q" + (i + 1) + " (" + q.title + "): " + (answers[i] || "(no answer given)");
+    }).join("\n\n");
+
+    var systemPrompt = "You are a sharp, senior go-to-market strategy advisor, in the tradition of operators who have scaled multiple B2B companies. You are reviewing a leader's answers to the \"Eight Questions\" strategic framework (covering: where to focus growth, highest-value offer, differentiated point of view, fastest revenue motion, customer's real ROI, expansion strategy, the one health metric, and leadership clarity/alignment/trust).\n\nAnalyze their answers as a whole system, not one at a time. Look for: contradictions between answers, a strong answer that isn't being leveraged elsewhere, a weak or vague answer that will undermine the others, or a genuine strength worth doubling down on.\n\nRespond ONLY with valid JSON, no markdown fences, no preamble, in exactly this shape:\n{\n  \"insights\": [\n    { \"headline\": \"short punchy headline, under 8 words\", \"body\": \"2-3 sentences of sharp, specific analysis referencing their actual answers\" },\n    { \"headline\": \"...\", \"body\": \"...\" },\n    { \"headline\": \"...\", \"body\": \"...\" }\n  ],\n  \"actions\": [\n    { \"title\": \"short action title, under 10 words\", \"detail\": \"1-2 sentences, concrete and specific\" }\n  ]\n}\nThe actions array must have exactly 5 items, ordered from highest to lowest expected impact.\n\nBe direct and specific — reference details from their actual answers, not generic advice. If an answer is thin or missing, say so plainly and make that a finding.";
+
+    fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1800,
+        system: systemPrompt,
+        messages: [
+          { role: "user", content: "Here are the leader's answers to the Eight Questions:\n\n" + qa + "\n\nProduce the JSON analysis now." }
+        ]
+      })
+    }).then(function (response) {
+      if (!response.ok) throw new Error("API request failed (" + response.status + ")");
+      return response.json();
+    }).then(function (data) {
+      var blocks = data.content || [];
+      var textBlock = null;
+      for (var i = 0; i < blocks.length; i++) {
+        if (blocks[i].type === "text") { textBlock = blocks[i]; break; }
+      }
+      if (!textBlock) throw new Error("No text content returned");
+      var cleaned = textBlock.text.trim();
+      cleaned = cleaned.replace(/^```json\s*/i, "").replace(/^```\s*/, "").replace(/```\s*$/, "");
+      var parsed;
+      try {
+        parsed = JSON.parse(cleaned);
+      } catch (e) {
+        throw new Error("Could not parse analysis response");
+      }
+      if (!parsed.insights || !parsed.actions) throw new Error("Analysis response was incomplete");
+      cb(null, parsed);
+    }).catch(function (err) {
+      cb(err);
+    });
+  }
+
+  /* ---------------------------------------------------------
+     RENDER: WELCOME
+  --------------------------------------------------------- */
+  function renderWelcome() {
+    var wrap = el("div", { class: "texture", style: {
+      minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 24px"
+    }});
+    var inner = el("div", { class: "fade-up", style: { maxWidth: "620px" } });
+
+    inner.appendChild(el("div", { class: "eyebrow", style: { marginBottom: "18px" } }, ["A Strategy Ledger · Eight Questions"]));
+    inner.appendChild(el("h1", { class: "serif", style: {
+      fontSize: "clamp(34px, 5.5vw, 54px)", lineHeight: "1.08", fontWeight: "600",
+      margin: "0 0 22px", color: "var(--ink)", letterSpacing: "-0.01em"
+    }}, ["The questions every growing company eventually has to answer."]));
+    inner.appendChild(el("p", { style: { fontSize: "17.5px", lineHeight: "1.65", color: "var(--ink-soft)", margin: "0 0 14px" } },
+      ["Drawn from two very different companies — one built on account-based marketing, one built for CEOs navigating go-to-market after the old playbook stopped working — these eight questions are the filter, not a meeting agenda."]));
+    inner.appendChild(el("p", { style: { fontSize: "17.5px", lineHeight: "1.65", color: "var(--ink-soft)", margin: "0 0 34px" } },
+      ["Answer honestly. At the end, you'll get three insights drawn from your own answers, and five actions ordered by where they'll move the needle most."]));
+
+    var btn = el("button", { class: "btn-primary", onClick: function () {
+      state.stage = "questions";
+      render();
+    }}, ["Begin — Question One →"]);
+    inner.appendChild(btn);
+
+    inner.appendChild(el("div", { style: { marginTop: "22px", fontSize: "13.5px", color: "var(--ink-soft)", opacity: "0.75" } },
+      ["Takes about 10–15 minutes. Nothing is saved once you close this page."]));
+
+    wrap.appendChild(inner);
+    return wrap;
+  }
+
+  /* ---------------------------------------------------------
+     RENDER: INDEX SIDEBAR
+  --------------------------------------------------------- */
+  function renderIndex() {
+    var box = el("div", { style: { display: "flex", flexDirection: "column", gap: "2px" } });
+    QUESTIONS.forEach(function (q, i) {
+      var isActive = i === state.current;
+      var isDone = state.answers[i] && state.answers[i].trim().length > 0;
+      var canJump = isDone || i === state.current;
+
+      var numSpan = el("span", { style: {
+        fontSize: "13px", width: "16px", textAlign: "right",
+        color: isActive ? "var(--clay)" : (isDone ? "var(--olive)" : "var(--ink-soft)"),
+        fontWeight: isActive ? "600" : "400"
+      }}, [isDone && !isActive ? "✓" : String(i + 1).padStart(2, "0")]);
+
+      var labelSpan = el("span", { style: {
+        fontSize: "14.5px",
+        color: "var(--ink)",
+        fontWeight: isActive ? "600" : "400",
+        fontStyle: isActive ? "italic" : "normal",
+        lineHeight: "1.3"
+      }}, [q.short]);
+
+      var btn = el("button", {
+        class: "index-item",
+        disabled: !canJump,
+        style: { opacity: canJump ? "1" : "0.55" },
+        onClick: function () {
+          if (canJump) { state.current = i; render(); }
+        }
+      }, [numSpan, labelSpan]);
+
+      box.appendChild(btn);
+    });
+    return box;
+  }
+
+  /* ---------------------------------------------------------
+     RENDER: QUESTION SCREEN
+  --------------------------------------------------------- */
+  function renderQuestions() {
+    var q = QUESTIONS[state.current];
+    var isLast = state.current === TOTAL - 1;
+    var isFirst = state.current === 0;
+    var value = state.answers[state.current];
+    var canAdvance = value && value.trim().length > 0;
+
+    var outer = el("div", { style: { minHeight: "100vh", display: "flex" } });
+
+    // sidebar
+    var aside = el("aside", { class: "idx-sidebar", style: {
+      width: "210px", flexShrink: "0", padding: "48px 18px",
+      borderRight: "1px solid var(--rule)", position: "relative", display: "none"
+    }});
+    var ribbon = el("div", { style: {
+      position: "absolute", left: "0", top: "0", bottom: "0", width: "3px", background: "var(--rule)"
+    }});
+    var ribbonFill = el("div", { style: {
+      position: "absolute", left: "0", top: "0", width: "100%",
+      height: ((state.current + (canAdvance ? 1 : 0)) / TOTAL * 100) + "%",
+      background: "linear-gradient(180deg, var(--clay), var(--brass))",
+      transition: "height 0.6s ease"
+    }});
+    ribbon.appendChild(ribbonFill);
+    aside.appendChild(ribbon);
+    var idxWrap = el("div", { style: { paddingLeft: "14px" } });
+    idxWrap.appendChild(el("div", { class: "eyebrow", style: { marginBottom: "22px" } }, ["Contents"]));
+    idxWrap.appendChild(renderIndex());
+    aside.appendChild(idxWrap);
+    outer.appendChild(aside);
+
+    // main
+    var main = el("main", { class: "texture", style: {
+      flex: "1", display: "flex", alignItems: "center", justifyContent: "center", padding: "60px 24px"
+    }});
+    var box = el("div", { style: { maxWidth: "680px", width: "100%" } });
+
+    var headRow = el("div", { class: "fade-in", style: { display: "flex", alignItems: "center", gap: "14px", marginBottom: "26px" } });
+    headRow.appendChild(el("span", { class: "serif", style: { fontSize: "15px", color: "var(--clay)", fontWeight: "600" } },
+      [String(state.current + 1).padStart(2, "0") + " / " + String(TOTAL).padStart(2, "0")]));
+    headRow.appendChild(el("div", { style: { flex: "1", height: "1px", background: "var(--rule)" } }));
+    headRow.appendChild(el("span", { class: "eyebrow" }, [q.short]));
+    box.appendChild(headRow);
+
+    box.appendChild(el("h2", { class: "serif fade-up", style: {
+      fontSize: "clamp(26px, 4vw, 38px)", lineHeight: "1.15", fontWeight: "600", margin: "0 0 18px", color: "var(--ink)"
+    }}, [q.title]));
+
+    box.appendChild(el("p", { class: "fade-up", style: {
+      fontSize: "16.5px", lineHeight: "1.6", color: "var(--ink-soft)", margin: "0 0 30px",
+      fontStyle: "italic", borderLeft: "2px solid var(--brass)", paddingLeft: "16px"
+    }}, [q.frame]));
+
+    var textarea = el("textarea", {
+      class: "qbox fade-up",
+      rows: "6",
+      placeholder: q.placeholder,
+      oninput: function (e) {
+        state.answers[state.current] = e.target.value;
+        // update just the button states without full re-render (keeps focus)
+        updateNavButtons();
+        updateRibbon();
+      }
+    });
+    textarea.value = value;
+    box.appendChild(textarea);
+
+    var navRow = el("div", { class: "fade-in", id: "navRow", style: {
+      display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "30px"
+    }});
+
+    var backBtn = el("button", {
+      class: "btn-ghost",
+      style: { visibility: isFirst ? "hidden" : "visible" },
+      onClick: function () { if (state.current > 0) { state.current -= 1; render(); } }
+    }, ["← Back"]);
+    navRow.appendChild(backBtn);
+
+    var rightGroup = el("div", { style: { display: "flex", gap: "12px", alignItems: "center" } });
+
+    if (state.current >= 2) {
+      rightGroup.appendChild(el("button", {
+        class: "btn-ghost",
+        style: { fontSize: "13.5px", textDecoration: "underline", textUnderlineOffset: "3px", opacity: "0.7" },
+        onClick: function () { state.stage = "summary"; render(); }
+      }, ["Skip to summary"]));
+    }
+
+    var nextBtn = el("button", {
+      id: "nextBtn",
+      class: "btn-primary",
+      disabled: !canAdvance,
+      style: { padding: "13px 26px", fontSize: "15.5px" },
+      onClick: function () {
+        if (state.current < TOTAL - 1) { state.current += 1; render(); }
+        else { state.stage = "summary"; render(); }
+      }
+    }, [isLast ? "Review answers →" : "Next question →"]);
+    rightGroup.appendChild(nextBtn);
+
+    navRow.appendChild(rightGroup);
+    box.appendChild(navRow);
+
+    main.appendChild(box);
+    outer.appendChild(main);
+
+    // responsive sidebar via injected style (once)
+    if (!document.getElementById("responsive-style")) {
+      var styleTag = document.createElement("style");
+      styleTag.id = "responsive-style";
+      styleTag.textContent = "@media (min-width: 900px) { .idx-sidebar { display: block !important; } }";
+      document.head.appendChild(styleTag);
+    }
+
+    setTimeout(function () { textarea.focus(); }, 0);
+
+    return outer;
+  }
+
+  function updateNavButtons() {
+    var nextBtn = document.getElementById("nextBtn");
+    if (!nextBtn) return;
+    var value = state.answers[state.current];
+    var canAdvance = value && value.trim().length > 0;
+    nextBtn.disabled = !canAdvance;
+  }
+
+  function updateRibbon() {
+    // no-op lightweight; full render on navigation keeps this simple/correct
+  }
+
+  /* ---------------------------------------------------------
+     RENDER: SUMMARY
+  --------------------------------------------------------- */
+  function renderSummary() {
+    var wrap = el("div", { class: "texture", style: { minHeight: "100vh", padding: "60px 24px" } });
+    var inner = el("div", { class: "fade-up", style: { maxWidth: "760px", margin: "0 auto" } });
+
+    inner.appendChild(el("div", { class: "eyebrow", style: { marginBottom: "12px" } }, ["Before the analysis"]));
+    inner.appendChild(el("h2", { class: "serif", style: { fontSize: "clamp(28px,4vw,40px)", fontWeight: "600", margin: "0 0 12px" } }, ["Your ledger, so far"]));
+    inner.appendChild(el("p", { style: { fontSize: "16px", color: "var(--ink-soft)", margin: "0 0 40px", lineHeight: "1.6" } },
+      ["Review your eight answers. Edit anything before we run the analysis — the sharper the input, the sharper the read."]));
+
+    var list = el("div", { style: { display: "flex", flexDirection: "column" } });
+    QUESTIONS.forEach(function (q, i) {
+      var row = el("div", { style: {
+        borderTop: i === 0 ? "1px solid var(--rule)" : "none",
+        borderBottom: "1px solid var(--rule)", padding: "22px 4px"
+      }});
+      var headRow = el("div", { style: { display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: "12px", marginBottom: "8px" } });
+      var left = el("div", { style: { display: "flex", alignItems: "baseline", gap: "10px" } });
+      left.appendChild(el("span", { class: "serif", style: { fontSize: "13px", color: "var(--clay)", fontWeight: "600" } }, [String(i + 1).padStart(2, "0")]));
+      left.appendChild(el("span", { class: "serif", style: { fontSize: "17px", fontWeight: "600", color: "var(--ink)" } }, [q.title]));
+      headRow.appendChild(left);
+      headRow.appendChild(el("button", {
+        style: { background: "none", border: "none", color: "var(--clay)", fontSize: "13.5px", flexShrink: "0", textDecoration: "underline", textUnderlineOffset: "3px" },
+        onClick: function () { state.current = i; state.stage = "questions"; render(); }
+      }, ["Edit"]));
+      row.appendChild(headRow);
+
+      var hasAnswer = state.answers[i] && state.answers[i].trim();
+      row.appendChild(el("p", { style: {
+        fontSize: "15.5px", lineHeight: "1.6", color: hasAnswer ? "var(--ink-soft)" : "var(--error)",
+        margin: "0", whiteSpace: "pre-wrap"
+      }}, [hasAnswer ? state.answers[i] : "No answer given."]));
+
+      list.appendChild(row);
+    });
+    inner.appendChild(list);
+
+    var footer = el("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "40px" } });
+    footer.appendChild(el("button", {
+      class: "btn-ghost",
+      onClick: function () { state.current = TOTAL - 1; state.stage = "questions"; render(); }
+    }, ["← Back to questions"]));
+    footer.appendChild(el("button", {
+      class: "btn-olive",
+      onClick: function () { runAnalysis(); }
+    }, ["Run the analysis →"]));
+    inner.appendChild(footer);
+
+    wrap.appendChild(inner);
+    return wrap;
+  }
+
+  /* ---------------------------------------------------------
+     RENDER: LOADING
+  --------------------------------------------------------- */
+  var LOADING_MESSAGES = [
+    "Reading your answers as a system, not a checklist...",
+    "Looking for where your answers reinforce each other...",
+    "Looking for where they quietly contradict...",
+    "Drafting the three findings that matter most...",
+    "Ordering five actions by expected impact..."
+  ];
+
+  function renderLoading() {
+    var wrap = el("div", { class: "texture", style: {
+      minHeight: "100vh", display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center", padding: "24px"
+    }});
+    wrap.appendChild(el("div", { class: "spinner", style: { marginBottom: "28px" } }));
+    wrap.appendChild(el("div", { class: "eyebrow", style: { marginBottom: "10px" } }, ["Analyzing"]));
+    var msg = el("p", { id: "loadingMsg", class: "serif", style: {
+      fontSize: "19px", color: "var(--ink)", fontStyle: "italic", maxWidth: "420px", textAlign: "center"
+    }}, [LOADING_MESSAGES[state.loadingMsgIdx]]);
+    wrap.appendChild(msg);
+    return wrap;
+  }
+
+  function startLoadingCycle() {
+    stopLoadingCycle();
+    loadingTimer = setInterval(function () {
+      state.loadingMsgIdx = (state.loadingMsgIdx + 1) % LOADING_MESSAGES.length;
+      var msgEl = document.getElementById("loadingMsg");
+      if (msgEl) msgEl.textContent = LOADING_MESSAGES[state.loadingMsgIdx];
+    }, 2200);
+  }
+  function stopLoadingCycle() {
+    if (loadingTimer) { clearInterval(loadingTimer); loadingTimer = null; }
+  }
+
+  /* ---------------------------------------------------------
+     RENDER: ERROR
+  --------------------------------------------------------- */
+  function renderError() {
+    var wrap = el("div", { class: "texture", style: {
+      minHeight: "100vh", display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center", padding: "24px", textAlign: "center"
+    }});
+    wrap.appendChild(el("div", { class: "eyebrow", style: { color: "var(--error)", marginBottom: "12px" } }, ["The analysis didn't complete"]));
+    wrap.appendChild(el("p", { class: "serif", style: { fontSize: "20px", maxWidth: "440px", marginBottom: "10px" } }, ["Something interrupted the read."]));
+    wrap.appendChild(el("p", { style: { fontSize: "14.5px", color: "var(--ink-soft)", maxWidth: "420px", marginBottom: "26px" } },
+      [state.errorMsg || "The request didn't go through. Your answers are still here — try again."]));
+    wrap.appendChild(el("button", { class: "btn-primary", onClick: function () { runAnalysis(); } }, ["Try again"]));
+    return wrap;
+  }
+
+  /* ---------------------------------------------------------
+     EXPORT: MARKDOWN
+  --------------------------------------------------------- */
+  function buildMarkdown() {
+    var lines = [];
+    lines.push("# The Eight Questions — Strategy Brief");
+    lines.push("");
+    lines.push("_Generated " + new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }) + "_");
+    lines.push("");
+    lines.push("## Your Answers");
+    lines.push("");
+    QUESTIONS.forEach(function (q, i) {
+      lines.push("### " + (i + 1) + ". " + q.title);
+      lines.push("");
+      var a = state.answers[i] && state.answers[i].trim();
+      lines.push(a ? a : "_No answer given._");
+      lines.push("");
+    });
+
+    if (state.analysis) {
+      lines.push("## Key Insights");
+      lines.push("");
+      (state.analysis.insights || []).forEach(function (ins, i) {
+        lines.push("**" + (i + 1) + ". " + (ins.headline || "") + "**");
+        lines.push("");
+        lines.push(ins.body || "");
+        lines.push("");
+      });
+
+      lines.push("## Ordered Action Plan");
+      lines.push("");
+      (state.analysis.actions || []).forEach(function (act, i) {
+        lines.push((i + 1) + ". **" + (act.title || "") + "** — " + (act.detail || ""));
+      });
+      lines.push("");
+    }
+
+    return lines.join("\n");
+  }
+
+  function downloadMarkdown() {
+    var md = buildMarkdown();
+    var blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "eight-questions-strategy-brief.md";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  /* ---------------------------------------------------------
+     EXPORT: PDF (via browser print dialog on a dedicated view)
+  --------------------------------------------------------- */
+  function openPrintView() {
+    var w = window.open("", "_blank");
+    if (!w) {
+      alert("Your browser blocked the print window. Please allow pop-ups for this page and try again.");
+      return;
+    }
+    var esc2 = function (s) {
+      var d = document.createElement("div");
+      d.textContent = s == null ? "" : String(s);
+      return d.innerHTML;
+    };
+
+    var answersHtml = QUESTIONS.map(function (q, i) {
+      var a = state.answers[i] && state.answers[i].trim();
+      return '<div class="qa">' +
+        '<h3>' + (i + 1) + '. ' + esc2(q.title) + '</h3>' +
+        '<p>' + (a ? esc2(a).replace(/\n/g, "<br>") : '<em>No answer given.</em>') + '</p>' +
+        '</div>';
+    }).join("");
+
+    var insightsHtml = "";
+    var actionsHtml = "";
+    if (state.analysis) {
+      insightsHtml = (state.analysis.insights || []).map(function (ins, i) {
+        return '<div class="insight">' +
+          '<div class="num">' + String(i + 1).padStart(2, "0") + '</div>' +
+          '<div><h4>' + esc2(ins.headline || "") + '</h4><p>' + esc2(ins.body || "") + '</p></div>' +
+          '</div>';
+      }).join("");
+
+      actionsHtml = (state.analysis.actions || []).map(function (act, i) {
+        return '<div class="action">' +
+          '<div class="circle">' + (i + 1) + '</div>' +
+          '<div><h4>' + esc2(act.title || "") + '</h4><p>' + esc2(act.detail || "") + '</p></div>' +
+          '</div>';
+      }).join("");
+    }
+
+    var doc = "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Eight Questions — Strategy Brief</title>" +
+      "<link rel='preconnect' href='https://fonts.googleapis.com'>" +
+      "<link href='https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Source+Sans+3:wght@400;500;600&display=swap' rel='stylesheet'>" +
+      "<style>" +
+      "  * { box-sizing: border-box; }" +
+      "  body { font-family: 'Source Sans 3', sans-serif; color: #2B2A26; max-width: 720px; margin: 0 auto; padding: 50px 32px 80px; line-height: 1.6; }" +
+      "  h1, h2, h3, h4 { font-family: 'Fraunces', serif; color: #2B2A26; }" +
+      "  .eyebrow { font-family: 'Fraunces', serif; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #8A6D4A; font-weight: 500; margin-bottom: 6px; }" +
+      "  h1 { font-size: 30px; margin: 0 0 6px; }" +
+      "  .sub { color: #5B584E; font-size: 14px; margin-bottom: 40px; }" +
+      "  h2 { font-size: 20px; border-bottom: 1px solid #D9D0BC; padding-bottom: 8px; margin: 46px 0 24px; }" +
+      "  .qa { margin-bottom: 22px; page-break-inside: avoid; }" +
+      "  .qa h3 { font-size: 16px; margin: 0 0 6px; }" +
+      "  .qa p { font-size: 14px; color: #5B584E; margin: 0; }" +
+      "  .insight { display: flex; gap: 16px; margin-bottom: 22px; page-break-inside: avoid; }" +
+      "  .insight .num { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 300; color: #C9A876; width: 32px; flex-shrink: 0; }" +
+      "  .insight h4 { font-size: 16px; margin: 0 0 4px; }" +
+      "  .insight p { font-size: 13.5px; color: #5B584E; margin: 0; }" +
+      "  .action { display: flex; gap: 14px; margin-bottom: 18px; page-break-inside: avoid; }" +
+      "  .action .circle { font-family: 'Fraunces', serif; font-weight: 600; font-size: 13px; color: #FDFBF6; background: #8A6D4A; border-radius: 50%; width: 24px; height: 24px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }" +
+      "  .action h4 { font-size: 15px; margin: 0 0 4px; }" +
+      "  .action p { font-size: 13.5px; color: #5B584E; margin: 0; }" +
+      "  @media print { body { padding: 20px 10px; } }" +
+      "</style></head><body>" +
+      "<div class='eyebrow'>A Strategy Ledger · Eight Questions</div>" +
+      "<h1>Strategy Brief</h1>" +
+      "<div class='sub'>Generated " + esc2(new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })) + "</div>" +
+      "<h2>Your Answers</h2>" + answersHtml +
+      (state.analysis ? "<h2>Key Insights</h2>" + insightsHtml + "<h2>Ordered Action Plan</h2>" + actionsHtml : "") +
+      "</body></html>";
+
+    w.document.open();
+    w.document.write(doc);
+    w.document.close();
+
+    w.onload = function () {
+      setTimeout(function () { w.focus(); w.print(); }, 350);
+    };
+    // fallback in case onload doesn't fire reliably
+    setTimeout(function () { try { w.focus(); w.print(); } catch (e) {} }, 700);
+  }
+
+  /* ---------------------------------------------------------
+     RENDER: RESULTS
+  --------------------------------------------------------- */
+  function renderResults() {
+    var wrap = el("div", { class: "texture", style: { minHeight: "100vh", padding: "70px 24px 100px" } });
+    var inner = el("div", { style: { maxWidth: "720px", margin: "0 auto" } });
+
+    var head = el("div", { class: "fade-up", style: { textAlign: "center", marginBottom: "56px" } });
+    head.appendChild(el("div", { class: "eyebrow", style: { marginBottom: "14px" } }, ["The Strategy Brief"]));
+    head.appendChild(el("h1", { class: "serif", style: { fontSize: "clamp(30px,5vw,46px)", fontWeight: "600", margin: "0 0 14px", lineHeight: "1.12" } }, ["Three findings, five moves."]));
+    head.appendChild(el("p", { style: { fontSize: "16px", color: "var(--ink-soft)", maxWidth: "460px", margin: "0 auto", lineHeight: "1.6" } },
+      ["Drawn directly from your eight answers — treat this as a starting argument to react to, not a verdict."]));
+    inner.appendChild(head);
+
+    // insights
+    var insightsSection = el("div", { style: { marginBottom: "64px" } });
+    var insightsHead = el("div", { class: "eyebrow", style: { marginBottom: "24px", display: "flex", alignItems: "center", gap: "12px" } });
+    insightsHead.appendChild(el("span", {}, ["Key Insights"]));
+    insightsHead.appendChild(el("div", { style: { flex: "1", height: "1px", background: "var(--rule)" } }));
+    insightsSection.appendChild(insightsHead);
+
+    (state.analysis.insights || []).forEach(function (ins, i) {
+      var row = el("div", { class: "fade-up", style: { display: "flex", gap: "22px", marginBottom: "34px" } });
+      row.appendChild(el("div", { class: "serif", style: { fontSize: "34px", fontWeight: "300", color: "var(--brass)", lineHeight: "1", flexShrink: "0", width: "40px" } },
+        [String(i + 1).padStart(2, "0")]));
+      var body = el("div", { style: { borderLeft: "2px solid var(--olive)", paddingLeft: "20px" } });
+      body.appendChild(el("h3", { class: "serif", style: { fontSize: "21px", fontWeight: "600", margin: "0 0 8px", color: "var(--ink)" } }, [ins.headline || ""]));
+      body.appendChild(el("p", { style: { fontSize: "15.5px", lineHeight: "1.65", color: "var(--ink-soft)", margin: "0" } }, [ins.body || ""]));
+      row.appendChild(body);
+      insightsSection.appendChild(row);
+    });
+    inner.appendChild(insightsSection);
+
+    // actions
+    var actionsSection = el("div", { style: { marginBottom: "40px" } });
+    var actionsHead = el("div", { class: "eyebrow", style: { marginBottom: "24px", display: "flex", alignItems: "center", gap: "12px" } });
+    actionsHead.appendChild(el("span", {}, ["Ordered Action Plan"]));
+    actionsHead.appendChild(el("div", { style: { flex: "1", height: "1px", background: "var(--rule)" } }));
+    actionsSection.appendChild(actionsHead);
+
+    var actionsBox = el("div", { style: { background: "var(--parchment-card)", border: "1px solid var(--rule)", borderRadius: "6px", overflow: "hidden" } });
+    var actions = state.analysis.actions || [];
+    actions.forEach(function (act, i) {
+      var row = el("div", { class: "fade-up", style: {
+        display: "flex", gap: "20px", padding: "22px 26px",
+        borderBottom: i < actions.length - 1 ? "1px solid var(--rule)" : "none"
+      }});
+      row.appendChild(el("div", { class: "serif", style: {
+        fontSize: "15px", fontWeight: "600", color: "var(--parchment-card)", background: "var(--clay)",
+        borderRadius: "50%", width: "30px", height: "30px", display: "flex", alignItems: "center",
+        justifyContent: "center", flexShrink: "0", marginTop: "2px"
+      }}, [String(i + 1)]));
+      var body = el("div", {});
+      body.appendChild(el("h4", { class: "serif", style: { fontSize: "17.5px", fontWeight: "600", margin: "0 0 6px", color: "var(--ink)" } }, [act.title || ""]));
+      body.appendChild(el("p", { style: { fontSize: "14.5px", lineHeight: "1.6", color: "var(--ink-soft)", margin: "0" } }, [act.detail || ""]));
+      row.appendChild(body);
+      actionsBox.appendChild(row);
+    });
+    actionsSection.appendChild(actionsBox);
+    inner.appendChild(actionsSection);
+
+    var exportRow = el("div", { class: "fade-in", style: {
+      display: "flex", gap: "12px", justifyContent: "center", marginTop: "8px", flexWrap: "wrap"
+    }});
+    exportRow.appendChild(el("button", {
+      class: "serif",
+      style: {
+        background: "var(--parchment-card)", border: "1px solid var(--rule)", borderRadius: "3px",
+        padding: "12px 22px", fontSize: "14.5px", fontWeight: "500", color: "var(--ink)",
+        display: "inline-flex", alignItems: "center", gap: "8px"
+      },
+      onClick: function () { openPrintView(); }
+    }, ["Save as PDF"]));
+    exportRow.appendChild(el("button", {
+      class: "serif",
+      style: {
+        background: "var(--parchment-card)", border: "1px solid var(--rule)", borderRadius: "3px",
+        padding: "12px 22px", fontSize: "14.5px", fontWeight: "500", color: "var(--ink)",
+        display: "inline-flex", alignItems: "center", gap: "8px"
+      },
+      onClick: function () { downloadMarkdown(); }
+    }, ["Save as Markdown"]));
+    inner.appendChild(exportRow);
+
+    var footer = el("div", { style: { textAlign: "center", marginTop: "24px" } });
+    footer.appendChild(el("button", {
+      style: { background: "none", border: "none", borderRadius: "3px", padding: "12px 24px", fontSize: "13.5px", color: "var(--ink-soft)", textDecoration: "underline", textUnderlineOffset: "3px", opacity: "0.75" },
+      onClick: function () {
+        state.stage = "welcome";
+        state.current = 0;
+        state.answers = new Array(TOTAL).fill("");
+        state.analysis = null;
+        render();
+      }
+    }, ["Start over with new answers"]));
+    inner.appendChild(footer);
+
+    wrap.appendChild(inner);
+    return wrap;
+  }
+
+  /* ---------------------------------------------------------
+     ANALYSIS RUNNER
+  --------------------------------------------------------- */
+  function runAnalysis() {
+    state.stage = "loading";
+    state.loadingMsgIdx = 0;
+    render();
+    startLoadingCycle();
+    generateAnalysis(state.answers, function (err, result) {
+      stopLoadingCycle();
+      if (err) {
+        state.errorMsg = err.message || "Unknown error";
+        state.stage = "error";
+        render();
+      } else {
+        state.analysis = result;
+        state.stage = "results";
+        render();
+      }
+    });
+  }
+
+  /* ---------------------------------------------------------
+     MAIN RENDER DISPATCH
+  --------------------------------------------------------- */
+  function render() {
+    stopLoadingCycle();
+    root.innerHTML = "";
+    var view;
+    if (state.stage === "welcome") view = renderWelcome();
+    else if (state.stage === "questions") view = renderQuestions();
+    else if (state.stage === "summary") view = renderSummary();
+    else if (state.stage === "loading") { view = renderLoading(); }
+    else if (state.stage === "error") view = renderError();
+    else if (state.stage === "results" && state.analysis) view = renderResults();
+    else view = renderWelcome();
+    root.appendChild(view);
+    if (state.stage === "loading") startLoadingCycle();
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
